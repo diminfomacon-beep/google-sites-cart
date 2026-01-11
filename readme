@@ -1,0 +1,15 @@
+# Google Sites Shopping Cart
+
+This project adds a full shopping cart, checkout, and PayPal integration
+to Google Sites using JavaScript and GitHub Pages.
+
+## Features
+- Add to Cart buttons
+- Floating mini cart
+- Cart page
+- Tax & shipping logic
+- PayPal checkout
+
+## Live Script
+This repo is designed to be used via GitHub Pages and embedded into Google Sites.
+
