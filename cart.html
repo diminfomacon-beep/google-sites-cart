@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta charset="UTF-8">
+<title>Cart Engine</title>
+</head>
 <body>
 
 <script>
-if(!localStorage.getItem("cart")) localStorage.setItem("cart","[]");
+/* Create cart if it doesn't exist */
+if(!localStorage.getItem("cart")){
+  localStorage.setItem("cart","[]");
+}
 
+/* Listen for Add To Cart messages */
 window.addEventListener("message", function(e){
-  if(e.data.type === "ADD"){
-    const cart = JSON.parse(localStorage.getItem("cart"));
-    const existing = cart.find(i=>i.name===e.data.name);
-    if(existing){
-      existing.qty++;
+  if(e.data.type === "ADD_TO_CART"){
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    let found = cart.find(item => item.name === e.data.name);
+
+    if(found){
+      found.qty += 1;
     } else {
-      cart.push({name:e.data.name, price:e.data.price, qty:1});
+      cart.push({
+        name: e.data.name,
+        price: e.data.price,
+        qty: 1
+      });
     }
+
     localStorage.setItem("cart", JSON.stringify(cart));
+
+    console.log("Cart Updated:", cart);
   }
 });
 </script>
 
 </body>
 </html>
-
-<script>
-window.addEventListener("message", function(e){
-  if(e.data.type === "ADD_TO_CART"){
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let found = cart.find(i => i.name === e.data.name);
-
-    if(found){
-      found.qty += 1;
-    } else {
-      cart.push({ name: e.data.name, price: e.data.price, qty: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }
-});
-</script>
