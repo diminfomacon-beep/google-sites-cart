@@ -2,121 +2,182 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Floating Cart</title>
+<title>Checkout</title>
 <style>
-  body{margin:0;font-family:'Lato',sans-serif;}
-  #floatingCart{
-    position:fixed;bottom:25px;right:25px;width:60px;height:60px;
-    border-radius:50%;background:#76C8AF;color:white;
-    display:flex;align-items:center;justify-content:center;
-    font-size:28px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.25);z-index:9999;
-  }
-  #cartBadge{
-    position:absolute;top:-5px;right:-5px;background:red;color:white;
-    width:20px;height:20px;font-size:12px;border-radius:50%;
-    display:none;text-align:center;line-height:20px;font-weight:bold;
-  }
-  #miniCartPopup{
-    position:fixed;bottom:95px;right:25px;width:320px;max-height:420px;
-    background:white;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.25);
-    overflow-y:auto;display:none;z-index:9998;padding:15px;font-family:'Lato',sans-serif;
-  }
-  #miniCartContent div{display:flex;justify-content:space-between;margin-bottom:8px;}
-  #miniCartContent button{background:red;color:white;border:none;padding:2px 6px;border-radius:4px;cursor:pointer;}
+  body { font-family:'Lato', sans-serif; background:#f5f5f5; padding:20px; }
+  h2 { color:#0E2841; text-align:center; }
+  .checkout-box { max-width:600px; margin:20px auto; background:white; padding:25px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,.15);}
+  input, select { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; font-size:16px; }
+  label { font-weight:bold; margin-top:12px; display:block; }
+  #totals { margin-top:20px; font-size:18px; }
+  #totals span { font-weight:bold; }
+  #paypal-button-container { margin-top:20px; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  table, th, td { border:1px solid #ccc; }
+  th, td { padding:8px; text-align:left; }
 </style>
 </head>
 <body>
-<div id="floatingCart">🛒<span id="cartBadge">0</span></div>
-<div id="miniCartPopup">
-  <h4 style="text-align:center;margin:0 0 10px 0;">Your Cart</h4>
-  <div id="miniCartContent"></div>
-  <h4 style="text-align:right;margin-top:10px;">Total: $<span id="miniCartTotal">0.00</span></h4>
-  <button id="goToCheckoutBtn" style="width:100%;padding:10px;background:#76C8AF;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">
-    Go to Checkout
-  </button>
+
+<div class="checkout-box">
+  <h2>Checkout</h2>
+  <p style="text-align:center;">Please select your delivery method:</p>
+
+  <label for="method">Delivery Method</label>
+  <select id="method">
+    <option value="ship">Shipping</option>
+    <option value="pickup">Local Pickup – Macon GA</option>
+  </select>
+
+  <div id="ship-fields">
+    <label for="name">Full Name</label>
+    <input id="name" placeholder="Full Name">
+
+    <label for="address1">Address Line 1</label>
+    <input id="address1" placeholder="Street Address">
+
+    <label for="address2">Address Line 2</label>
+    <input id="address2" placeholder="Apt, Suite, etc.">
+
+    <label for="city">City</label>
+    <input id="city" placeholder="City">
+
+    <label for="state">State</label>
+    <select id="state">
+      <option value="">Select State</option>
+      <option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option>
+      <option value="AR">AR</option><option value="CA">CA</option><option value="CO">CO</option>
+      <option value="CT">CT</option><option value="DE">DE</option><option value="FL">FL</option>
+      <option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option>
+      <option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option>
+      <option value="KS">KS</option><option value="KY">KY</option><option value="LA">LA</option>
+      <option value="ME">ME</option><option value="MD">MD</option><option value="MA">MA</option>
+      <option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option>
+      <option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option>
+      <option value="NV">NV</option><option value="NH">NH</option><option value="NJ">NJ</option>
+      <option value="NM">NM</option><option value="NY">NY</option><option value="NC">NC</option>
+      <option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option>
+      <option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option>
+      <option value="SC">SC</option><option value="SD">SD</option><option value="TN">TN</option>
+      <option value="TX">TX</option><option value="UT">UT</option><option value="VT">VT</option>
+      <option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option>
+      <option value="WI">WI</option><option value="WY">WY</option>
+    </select>
+
+    <label for="zip">Zip</label>
+    <input id="zip" placeholder="Zip Code">
+  </div>
+
+  <div id="pickup-fields" style="display:none;">
+    <label for="pickupName">Pickup Person Name</label>
+    <input id="pickupName" placeholder="Name">
+
+    <label for="pickupPhone">Phone Number</label>
+    <input id="pickupPhone" placeholder="Phone">
+  </div>
+
+  <h3>Order Summary</h3>
+  <table id="cartTable">
+    <thead>
+      <tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="totals">
+    Subtotal: $<span id="sub">0.00</span><br>
+    Tax: $<span id="tax">0.00</span><br>
+    Shipping: $<span id="ship">0.00</span><br>
+    <b>Total: $<span id="final">0.00</span></b>
+  </div>
+
+  <div id="paypal-button-container"></div>
 </div>
 
+<script src="https://www.paypal.com/sdk/js?client-id=AZfoLkPa3ut2MSEgAqM5ZINc3mDEHejbOhfjTWiBtdgvCSuBuhQ5Eobajkyxu5cSyTBuBfmwk9mTY4Vu&currency=USD"></script>
 <script>
-(function(){
-  if(!localStorage.getItem('cart')) localStorage.setItem('cart','[]');
+const methodSelect = document.getElementById('method');
+const subSpan = document.getElementById('sub');
+const taxSpan = document.getElementById('tax');
+const shipSpan = document.getElementById('ship');
+const finalSpan = document.getElementById('final');
+const shipFields = document.getElementById('ship-fields');
+const pickupFields = document.getElementById('pickup-fields');
+const cartTableBody = document.querySelector('#cartTable tbody');
 
-  const floatingCart = document.getElementById("floatingCart");
-  const miniCart = document.getElementById("miniCartPopup");
-  const badge = document.getElementById("cartBadge");
-  const miniCartContent = document.getElementById("miniCartContent");
-  const miniCartTotal = document.getElementById("miniCartTotal");
-  const goToCheckoutBtn = document.getElementById("goToCheckoutBtn");
-  const checkoutPageURL = '/checkout.html'; // <- Change to your checkout page
+// --- CART FUNCTIONS ---
+function getCart(){ return JSON.parse(localStorage.getItem('cart')||'[]'); }
+function cartTotal(){ return getCart().reduce((sum,i)=>sum+(i.price*i.qty),0); }
+function tax(){ return cartTotal()>0 && methodSelect.value==='ship'?cartTotal()*0.07:0; }
+function ship(){ return cartTotal()>0 && methodSelect.value==='ship'?8.99:0; }
+function grandTotal(){ return cartTotal()+tax()+ship(); }
 
-  // --- CART FUNCTIONS ---
-  function getCart(){ return JSON.parse(localStorage.getItem('cart')||'[]'); }
-  function totalItems(){ return getCart().reduce((sum,i)=>sum+i.qty,0); }
-  function cartTotal(){ return getCart().reduce((sum,i)=>sum+(i.price*i.qty),0); }
-  function tax(){ return cartTotal()>0 ? cartTotal()*0.07 : 0; }
-  function ship(){ return cartTotal()>0 ? 8.99 : 0; }
-  function grandTotal(){ return cartTotal()+tax()+ship(); }
+// --- RENDER CART TABLE ---
+function renderCart(){
+  const cart = getCart();
+  cartTableBody.innerHTML='';
+  cart.forEach(item=>{
+    const row = document.createElement('tr');
+    row.innerHTML=`<td>${item.name}</td><td>$${item.price.toFixed(2)}</td><td>${item.qty}</td><td>$${(item.price*item.qty).toFixed(2)}</td>`;
+    cartTableBody.appendChild(row);
+  });
+}
 
-  // --- BADGE & MINI CART ---
-  function updateBadge(){
-    const count = totalItems();
-    badge.innerText = count;
-    badge.style.display = count>0 ? "flex" : "none";
+// --- UPDATE TOTALS ---
+function updateTotals(){
+  renderCart();
+  subSpan.innerText = cartTotal().toFixed(2);
+  taxSpan.innerText = tax().toFixed(2);
+  shipSpan.innerText = ship().toFixed(2);
+  finalSpan.innerText = grandTotal().toFixed(2);
+}
+
+// --- TOGGLE SHIPPING/PICKUP ---
+methodSelect.addEventListener('change', ()=>{
+  if(methodSelect.value==='ship'){
+    shipFields.style.display='block';
+    pickupFields.style.display='none';
+  } else {
+    shipFields.style.display='none';
+    pickupFields.style.display='block';
   }
+  updateTotals();
+});
 
-  function renderMiniCart(){
-    const cart = getCart();
-    miniCartContent.innerHTML = '';
-    let total = grandTotal();
-
-    if(cart.length===0){
-      miniCartContent.innerHTML = '<p style="text-align:center;color:#555;">Your cart is empty.</p>';
-      miniCartTotal.innerText = '0.00';
-      return;
-    }
-
-    cart.forEach((item, idx)=>{
-      const div = document.createElement('div');
-      div.innerHTML = `<span>${item.name} x${item.qty}</span>
-                       <span>$${(item.price*item.qty).toFixed(2)}</span>
-                       <button onclick="removeMiniCartItem(${idx})">X</button>`;
-      miniCartContent.appendChild(div);
+// --- PAYPAL BUTTON ---
+paypal.Buttons({
+  createOrder: function(data, actions){
+    return actions.order.create({
+      purchase_units: [{
+        amount: { value: grandTotal().toFixed(2) }
+      }]
     });
+  },
+  onApprove: function(data, actions){
+    return actions.order.capture().then(function(details){
+      alert('Transaction completed by ' + details.payer.name.given_name);
 
-    miniCartTotal.innerText = total.toFixed(2);
+      // Optional: send order details to email
+      fetch('https://formsubmit.co/ajax/info@dimbrightideas.com', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          cart: getCart(),
+          total: grandTotal(),
+          customer: details.payer.name.given_name,
+          shippingMethod: methodSelect.value
+        })
+      });
+
+      // Clear cart
+      localStorage.removeItem('cart');
+      window.location.href="/"; // redirect after purchase
+    });
   }
+}).render('#paypal-button-container');
 
-  window.removeMiniCartItem = function(idx){
-    const cart = getCart();
-    cart.splice(idx,1);
-    localStorage.setItem('cart',JSON.stringify(cart));
-    updateBadge();
-    renderMiniCart();
-  }
-
-  // --- EVENTS ---
-  floatingCart.addEventListener('click', ()=>{
-    miniCart.style.display = miniCart.style.display==='block'?'none':'block';
-    renderMiniCart();
-  });
-  goToCheckoutBtn.addEventListener('click', ()=>{
-    window.location.href = checkoutPageURL;
-  });
-
-  window.addEventListener('message', function(e){
-    if(e.data.type==="ADD_TO_CART"){
-      const cart = getCart();
-      const item = cart.find(i=>i.name===e.data.name);
-      if(item) item.qty++;
-      else cart.push({name:e.data.name, price:e.data.price, qty:1});
-      localStorage.setItem('cart',JSON.stringify(cart));
-      updateBadge();
-      renderMiniCart();
-    }
-  });
-
-  // INIT
-  updateBadge();
-})();
+// --- INIT ---
+updateTotals();
 </script>
 </body>
 </html>
