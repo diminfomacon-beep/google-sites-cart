@@ -72,3 +72,20 @@ setInterval(()=>{
 updateBadge();
 
 });
+
+(function(){
+  if(!localStorage.getItem("cart")) localStorage.setItem("cart","[]");
+
+  window.addToCart = function(name, price){
+    const cart = JSON.parse(localStorage.getItem("cart"));
+    const existing = cart.find(i=>i.name===name);
+    if(existing){
+      existing.qty++;
+    } else {
+      cart.push({name, price, qty:1});
+    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert(name + " added to cart!");
+    if(window.loadCart) loadCart(); // updates cart badge if present
+  }
+})();
