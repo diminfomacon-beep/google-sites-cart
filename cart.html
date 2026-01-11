@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script>
+if(!localStorage.getItem("cart")) localStorage.setItem("cart","[]");
+
+window.addEventListener("message", function(e){
+  if(e.data.type === "ADD"){
+    const cart = JSON.parse(localStorage.getItem("cart"));
+    const existing = cart.find(i=>i.name===e.data.name);
+    if(existing){
+      existing.qty++;
+    } else {
+      cart.push({name:e.data.name, price:e.data.price, qty:1});
+    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }
+});
+</script>
+
+</body>
+</html>
