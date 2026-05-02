@@ -1,0 +1,258 @@
+<style>
+:root {
+  --primary: #FF6F61;     /* coral */
+  --accent: #2EC4B6;      /* teal */
+  --bg-light: #FFF7F3;
+  --bg-dark: #1F1F1F;
+  --card-light: #FFFFFF;
+  --card-dark: #2A2A2A;
+  --text-light: #333333;
+  --text-dark: #F2F2F2;
+}
+
+.dim-wrapper {
+  max-width: 600px;
+  margin: auto;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.dim-card {
+  background: var(--card-light);
+  color: var(--text-light);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.12);
+  transition: background 0.3s, color 0.3s;
+}
+
+.dim-card.dark {
+  background: var(--card-dark);
+  color: var(--text-dark);
+}
+
+.dim-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.dim-title {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.dim-title h3 {
+  margin:0;
+  font-size:1.4rem;
+  font-weight:800;
+}
+
+.dim-toggle {
+  cursor:pointer;
+  font-size:0.85rem;
+  opacity:0.8;
+  transition: 0.2s;
+}
+
+.dim-toggle:hover {
+  opacity:1;
+}
+
+label {
+  display:block;
+  margin-top:14px;
+  margin-bottom:6px;
+  font-size:0.85rem;
+  font-weight:700;
+}
+
+select, textarea, input[type="file"] {
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1.5px solid #ddd;
+  background:#f7f7f7;
+  font-size:0.9rem;
+  transition: border 0.2s;
+}
+
+select:focus, textarea:focus, input[type="file"]:focus {
+  border-color: var(--primary);
+  outline:none;
+}
+
+textarea { min-height:80px; }
+
+.dim-btn {
+  margin-top:20px;
+  width:100%;
+  padding:16px;
+  border-radius:18px;
+  border:none;
+  font-size:1rem;
+  font-weight:800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color:white;
+  cursor:pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dim-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.dim-loader {
+  display:none;
+  margin:20px auto;
+  width:40px;
+  height:40px;
+  border:4px solid #ddd;
+  border-top-color: var(--primary);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.dim-posts {
+  margin-top:20px;
+  display:grid;
+  gap:14px;
+}
+
+.dim-post {
+  background: rgba(0,0,0,0.03);
+  border-radius:14px;
+  padding:14px;
+  line-height:1.5;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.dim-card.dark .dim-post {
+  background: rgba(255,255,255,0.06);
+}
+
+.dim-post:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+}
+
+.dim-copy {
+  margin-top:8px;
+  font-size:0.75rem;
+  font-weight:700;
+  cursor:pointer;
+  color: var(--accent);
+  transition: color 0.2s;
+}
+
+.dim-copy:hover {
+  color: var(--primary);
+}
+
+.dim-footer {
+  margin-top:16px;
+  text-align:center;
+  font-size:0.75rem;
+  opacity:0.7;
+}
+</style>
+
+<div class="dim-wrapper">
+  <div class="dim-card" id="card">
+    <div class="dim-header">
+      <div class="dim-title">
+        <span>🎨</span>
+        <h3>AI Social Post Generator</h3>
+      </div>
+      <div class="dim-toggle" onclick="toggleMode()">🌙 Dark mode</div>
+    </div>
+
+    <label>Platform</label>
+    <select id="platform">
+      <option>Instagram</option>
+      <option>Pinterest</option>
+      <option>Facebook</option>
+    </select>
+
+    <label>Upload artwork images</label>
+    <input type="file" id="images" accept="image/*" multiple>
+
+    <label>Prompt words (optional)</label>
+    <textarea id="prompt" placeholder="Example: bright kids decor, handmade gift, include shop CTA"></textarea>
+
+    <button class="dim-btn" onclick="generatePosts()">Create My Posts ✨</button>
+
+    <div class="dim-loader" id="loader"></div>
+
+    <div class="dim-posts" id="posts"></div>
+
+    <div class="dim-footer">
+      Handmade art • Modern & playful
+    </div>
+  </div>
+</div>
+
+<script>
+let dark=false;
+
+function toggleMode(){
+  dark=!dark;
+  document.getElementById("card").classList.toggle("dark");
+}
+
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result.split(",")[1]);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function generatePosts(){
+  const files=document.getElementById("images").files;
+  if(!files.length){alert("Upload at least one image"); return;}
+
+  const loader=document.getElementById("loader");
+  const posts=document.getElementById("posts");
+  posts.innerHTML="";
+  loader.style.display="block";
+
+  const items=[];
+  for(let file of files){
+    const base64=await fileToBase64(file);
+    items.push({ fileName:file.name, base64Data:base64 });
+  }
+
+  const res=await fetch("https://script.google.com/macros/s/AKfycbwseOMbr56OHCingSN0k5UggcNQA731mUWRiwN1xm9rUq04yi0fitTz60vIJh6qvTtJgw/exec",{
+    method:"POST",
+    body: JSON.stringify({
+      platform: document.getElementById("platform").value,
+      prompt: document.getElementById("prompt").value,
+      items
+    })
+  });
+
+  const data = await res.json();
+  loader.style.display="none";
+
+  if(data.error){ posts.innerText="❌ Error: "+data.error; return; }
+
+  data.forEach(d=>{
+    const div=document.createElement("div");
+    div.className="dim-post";
+    div.innerHTML=`<strong>Description:</strong> ${d.description}<br><strong>Post:</strong> ${d.postText}<div class="dim-copy" onclick="copyText(this)">📋 Copy</div>`;
+    posts.appendChild(div);
+  });
+}
+
+function copyText(el){
+  navigator.clipboard.writeText(el.parentElement.innerText.replace("📋 Copy",""));
+  el.innerText="✅ Copied";
+  setTimeout(()=>el.innerText="📋 Copy",1200);
+}
+</script>
