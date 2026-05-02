@@ -1,0 +1,214 @@
+<style>
+:root {
+  --primary:#FF6F61;
+  --accent:#2EC4B6;
+  --bg-light:#FFF7F3;
+  --bg-dark:#1F1F1F;
+  --card-light:#FFFFFF;
+  --card-dark:#2A2A2A;
+  --text-light:#333333;
+  --text-dark:#F2F2F2;
+}
+
+.dim-wrapper {
+  max-width: 560px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.dim-card {
+  background: var(--card-light);
+  color: var(--text-light);
+  border-radius: 22px;
+  padding: 22px 24px 26px;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.12);
+  transition: background 0.3s, color 0.3s;
+}
+
+.dim-card.dark {
+  background: var(--card-dark);
+  color: var(--text-dark);
+}
+
+.dim-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+}
+
+.dim-title {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.dim-title h3 {
+  margin:0;
+  font-size:1.35rem;
+  font-weight:800;
+}
+
+.dim-toggle {
+  cursor:pointer;
+  font-size:0.85rem;
+  opacity:0.8;
+}
+
+label {
+  display:block;
+  margin-top:14px;
+  margin-bottom:6px;
+  font-size:0.85rem;
+  font-weight:700;
+}
+
+select, textarea, input[type="file"] {
+  width:100%;
+  padding:11px 12px;
+  border-radius:12px;
+  border:1.5px solid #ddd;
+  background:#f7f7f7;
+  font-size:0.9rem;
+}
+
+textarea { min-height:70px; }
+
+.dim-btn {
+  margin-top:18px;
+  width:100%;
+  padding:15px;
+  border-radius:16px;
+  border:none;
+  font-size:1rem;
+  font-weight:800;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  color:white;
+  cursor:pointer;
+}
+
+.dim-loader {
+  display:none;
+  margin:20px auto;
+  width:40px;
+  height:40px;
+  border:4px solid #ddd;
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.dim-posts {
+  margin-top:18px;
+  display:grid;
+  gap:14px;
+}
+
+.dim-post {
+  background:rgba(0,0,0,0.03);
+  border-radius:14px;
+  padding:14px;
+  line-height:1.5;
+}
+
+.dim-card.dark .dim-post {
+  background:rgba(255,255,255,0.06);
+}
+
+.dim-copy {
+  margin-top:8px;
+  font-size:0.75rem;
+  font-weight:700;
+  cursor:pointer;
+  color:var(--accent);
+}
+
+.dim-footer {
+  margin-top:14px;
+  text-align:center;
+  font-size:0.75rem;
+  opacity:0.7;
+}
+</style>
+
+<div class="dim-wrapper">
+  <div class="dim-card" id="card">
+    <div class="dim-header">
+      <div class="dim-title">
+        <span>🎨</span>
+        <h3>AI Social Post Generator</h3>
+      </div>
+      <div class="dim-toggle" onclick="toggleMode()">🌙 Dark mode</div>
+    </div>
+
+    <label>Platform</label>
+    <select id="platform">
+      <option>Instagram</option>
+      <option>Pinterest</option>
+      <option>Facebook</option>
+    </select>
+
+    <label>Upload artwork images</label>
+    <input type="file" id="images" accept="image/*" multiple>
+
+    <label>Prompt words (optional)</label>
+    <textarea id="prompt"
+      placeholder="Example: bright kids decor, handmade gift, include shop CTA"></textarea>
+
+    <button class="dim-btn" onclick="generatePosts()">Create My Posts ✨</button>
+
+    <div class="dim-loader" id="loader"></div>
+
+    <div class="dim-posts" id="posts"></div>
+
+    <div class="dim-footer">
+      Handmade art • Modern & playful
+    </div>
+  </div>
+</div>
+
+<script>
+let dark=false;
+
+function toggleMode(){
+  dark=!dark;
+  document.getElementById("card").classList.toggle("dark");
+}
+
+async function generatePosts(){
+  const files=document.getElementById("images").files;
+  const posts=document.getElementById("posts");
+  const loader=document.getElementById("loader");
+
+  posts.innerHTML="";
+  loader.style.display="block";
+
+  const res = await fetch("https://script.google.com/macros/s/AKfycbwLAaBx29OZyDxDZGYEB51-uL8Ol0OTQZWdes5AmrCpcb61QZ7ZSXwUHPfztNhXrszT/exec",{
+    method:"POST",
+    body:JSON.stringify({
+      platform:document.getElementById("platform").value,
+      prompt:document.getElementById("prompt").value,
+      count: files.length || 1
+    })
+  });
+
+  const text = await res.text();
+  loader.style.display="none";
+
+  text.split("──────────").forEach(t=>{
+    const div=document.createElement("div");
+    div.className="dim-post";
+    div.innerHTML=`${t}<div class="dim-copy" onclick="copyText(this)">📋 Copy</div>`;
+    posts.appendChild(div);
+  });
+}
+
+function copyText(el){
+  navigator.clipboard.writeText(
+    el.parentElement.innerText.replace("📋 Copy","")
+  );
+  el.innerText="✅ Copied";
+  setTimeout(()=>el.innerText="📋 Copy",1200);
+}
+</script>
